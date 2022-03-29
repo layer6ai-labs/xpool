@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+    * {
+      box-sizing: border-box;
+    }
+    .img-container {
+      float: left;
+      width: 8%;
+      padding: 0.5%;
+    }
+      
+    .vid-container {
+      float: left;
+      width: 19%;
+      padding-left: 4%;
+      padding-right: 4%;
+    }
+
+    .bar-container {
+      float: left;
+      width: 100%;
+      padding-right: 4%;
+      margin-bottom: 100px;
+    }
+    
+    /* .clearfix::after {
+      content: "";
+      clear: both;
+      display: block;
+      margin: auto;
+    } */
+    .center {
+      margin-left: 1.5%;
+      margin-right: auto;
+      width: 100%;
+      padding-left: 5%;
+      padding-right: 5%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      text-align: center;
+      font-size: 24px;
+      font-family: "Times New Roman";
+    }
+    .center2 {
+      width: 100%;
+      padding-left: 5%;
+      padding-right: 5%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      text-align: center;
+      font-size: 24px;
+      font-family: "Times New Roman";
+    }
+    .abstract {
+      width: 100%;
+      padding-left: 20%;
+      padding-right: 20%;
+      text-align: justify;
+      font-size: 24px;
+      font-family: "Times New Roman";
+    }
+    </style>
+    </head>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<body onload="random()" style="background-color: rgb(255,255,255);">
+
+<p class=center2 style="font-size: 48px; padding-bottom: 5px;"><span style="color: #ad4442"><strong>X-Pool</strong></span><br>Cross-Modal Language-Video Attention for Text-Video Retrieval</p>
+
+<center>
+    <table align="center" width="700px">
+        <tbody><tr>
+            <td align="center" width="100px">
+              <center>
+                  <span style="font-size:22px"><a href="https://www.cs.toronto.edu/~satyag/">Satya Krishna Gorti</a><sup>1*</sup></span>
+              </center>
+            </td>
+            <td align="center" width="100px">
+              <center>
+                  <span style="font-size:22px"><a href="https://www.linkedin.com/in/noel-vouitsis">Noël Vouitsis</a><sup>1,2*</sup></span>
+              </center>
+            </td>
+            <td align="center" width="100px">
+              <center>
+                  <span style="font-size:22px"><a href="https://www.linkedin.com/in/jeremy-ma/">Junwei Ma</a><sup>1*</sup></span>
+              </center>
+            </td>
+        </tr></tbody>
+    </table>
+    <table align="center" style="padding-bottom: 30px;" width="930px">
+        <tbody><tr>
+            <td align="center" width="100px">
+              <center>
+                  <span style="font-size:22px"><a href="https://www.linkedin.com/in/keyvangolestan/">Keyvan Golestan</a><sup>1</sup></span>
+              </center>
+            </td>
+            <td align="center" width="100px">
+              <center>
+                  <span style="font-size:22px"><a href="https://www.cs.toronto.edu/~mvolkovs/">Maksims Volkovs</a><sup>1</sup></span>
+              </center>
+            </td>
+            <td align="center" width="100px">
+              <center>
+                  <span style="font-size:22px"><a href="https://animesh.garg.tech/">Animesh Garg</a><sup>2,3,4</sup></span>
+              </center>
+            </td>
+            <td align="center" width="100px">
+              <center>
+                  <span style="font-size:22px"><a href="http://www.cs.toronto.edu/~guangweiyu/">Guangwei Yu</a><sup>1</sup></span>
+              </center>
+            </td>
+        </tr></tbody>
+    </table>
+    <table align="center" width="700px">
+      <tbody><tr>
+            <td align="center" width="100px">
+      <center>
+            <span style="font-size:18px"><sup>1</sup>Layer 6 AI</span>
+          </center>
+          </td>
+              <td align="center" width="100px">
+      <center>
+              <span style="font-size:18px"><sup>2</sup>University of Toronto</span>
+        </center>
+        </td>
+              <td align="center" width="100px">
+      <center>
+              <span style="font-size:18px"><sup>3</sup>Vector Institute</span>
+        </center>
+        </td>
+              <td align="center" width="100px">
+      <center>
+               <span style="font-size:18px"><sup>4</sup>NVIDIA</span>
+      </center>
+      </td>
+    </tr></tbody></table>
+    <span style="font-size:18px; padding-bottom: 30px">*Authors contributed equally to this work</span>
+    <br><br>
+    <span style="font-size:20px; padding-bottom: 10px">CVPR 2022</span>
+    <br><br>
+    <table align="center" width="300px">
+        <tbody><tr>
+            <td align="center" width="100px">
+              <center>
+                  <span style="font-size:22px"><a href=""> [Paper]</a></span>
+              </center>
+            </td>
+            <td align="center" width="100px">
+              <center>
+                  <span style="font-size:22px"><a href="https://github.com/layer6ai-labs/xpool"> [Code]</a></span>
+              </center>
+            </td>
+
+           </tr>
+        <tr>
+    </tr></tbody></table>
+</center>
+  
+<p class=center2 style="font-size: 32px;">Abstract</p>   
+<p class=abstract>
+In text-video retrieval, the objective is to learn a cross-modal similarity function between a text and a video that ranks relevant text-video pairs higher than irrelevant pairs. However, videos inherently express a much wider gamut of information than texts. Instead, texts often capture sub-regions of entire videos and are most semantically similar to certain frames within videos. Therefore, for a given text, a retrieval model should focus on the text’s most semantically similar video sub-regions to make a more relevant comparison. Yet, most existing works aggregate entire videos without directly considering text. Common text-agnostic aggregations schemes include mean-pooling or self-attention over the frames, but these are likely to encode misleading visual information not described in the given text. To address this, we propose a cross-modal attention model called X-Pool that reasons between a text and the frames of a video. Our core mechanism is a scaled dot product attention for a text to attend to its most semantically similar frames. We then generate an aggregated video representation conditioned on the text’s attention weights over the frames. We evaluate our method on three benchmark datasets of MSR-VTT, MSVD and LSMDC, achieving new state-of-the-art results by up to 12% in relative improvement in Recall@1. Our findings thereby highlight the importance of joint text-video reasoning to extract important visual cues according to text.
+</p>
+
+<p class=abstract>
+In the following demo, we first show a text-video pair video generated from the MSR-VTT dataset's 1K-A test split. We then show the attentions weights that X-Pool assigns to the frames of the video given the text as input. Finally, we show the top-5 retrived videos from the MSR-VTT test set when using the text as a query, and outline the ground-truth video in green if it appears in the top-5 candidates.
+</p>
+  
+<div class="center2">
+  <button id="generate_button" name="Generate" value="Generate" onclick="random()" style="font-size: 24px; font-family: 'Times New Roman'; color: #ad4442; font-weight : bold;">
+    Generate
+  </button>
+</div>
+  
+<div class="center2">
+  <p id="caption"><span style="color: #ad4442"><strong>Text</strong></span><br>a person is connecting something to system</p>
+</div>
+
+<div class="center2">
+  <p style="color: #ad4442; margin-bottom:5px;"><strong>Video</strong></p>
+  <video id="vid" width="320" height="240" autoplay muted loop>
+    <source src="https://msrvtt.s3.ca-central-1.amazonaws.com/videos/video9770.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+  </video>
+</div>
+
+<div class="center2" style="padding-bottom:5px;">
+  <p style="color: #ad4442; margin-bottom:0;"><strong>Attentions Weights Between the Text and the Video's Frames</strong></p> 
+</div>
+<div class="center" style="padding-top:0;">
+  <div class="img-container">
+    <img id="frame0" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_0.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame1" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_1.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame2" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_2.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame3" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_3.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame4" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_4.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame5" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_5.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame6" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_6.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame7" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_7.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame8" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_8.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame9" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_9.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame10" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_10.jpg" alt="" style="width:100%">
+  </div>
+  <div class="img-container">
+    <img id="frame11" src="https://msrvtt.s3.ca-central-1.amazonaws.com/frames/video9770_frame_11.jpg" alt="" style="width:100%">
+  </div>
+</div>
+
+<div class="center">
+  <div class="bar-container">
+    <canvas id="canvas" height="15" width="100%"></canvas>
+  </div>
+</div>
+
+<div class="center2" style="padding-bottom:5px;">
+  <p style="color: #ad4442; margin-bottom:0;"><strong>Top-5 Retrieved Videos Given the Text as a Query</strong></p> 
+</div>
+<div class="center" style="padding-top:7px; padding-left:6%;">
+  <div class="vid-container">
+    <video id="vid-top-1" style="width:100%" width="160" height="120" autoplay muted loop>
+      <source src="https://msrvtt.s3.ca-central-1.amazonaws.com/videos/video9770.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+    </video>
+  </div>
+  <div class="vid-container">
+    <video id="vid-top-2" style="width:100%" width="160" height="120" autoplay muted loop>
+      <source src="https://msrvtt.s3.ca-central-1.amazonaws.com/videos/video9770.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+    </video>
+  </div>
+  <div class="vid-container">
+    <video id="vid-top-3" style="width:100%" width="160" height="120" autoplay muted loop>
+      <source src="https://msrvtt.s3.ca-central-1.amazonaws.com/videos/video9770.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+    </video>
+  </div>
+  <div class="vid-container">
+    <video id="vid-top-4" style="width:100%" width="160" height="120" autoplay muted loop>
+      <source src="https://msrvtt.s3.ca-central-1.amazonaws.com/videos/video9770.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+    </video>
+  </div>
+  <div class="vid-container">
+    <video id="vid-top-5" style="width:100%" width="160" height="120" autoplay muted loop>
+      <source src="https://msrvtt.s3.ca-central-1.amazonaws.com/videos/video9770.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+    </video>
+  </div>
+</div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="static/js/bootstrap.min.js"></script>
+  <script src="static/js/Chart.min.js"></script>
+
+<script type="text/javascript">
+  function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+  }
+
+  function random()
+  {
+    let skip_videos = [696, 519, 414, 460]
+    var num = getRandomInt(0, 1000);
+    while (skip_videos.includes(num)) {
+      num = getRandomInt(0, 1000);
+    };
+
+    // get msrvtt json file
+    var request = new XMLHttpRequest();
+    request.open("GET", "static/msrvtt_jsfusion.json", false);
+    request.send(null)
+    var msrvtt_json = JSON.parse(request.responseText);
+
+    // update video
+    var video = document.getElementById('vid');
+    var new_vid = msrvtt_json[num]['video_id'];
+    video.setAttribute("src", "https://msrvtt.s3.ca-central-1.amazonaws.com/videos/" + new_vid + ".mp4");
+
+    // update frames
+    for (let i = 0; i < 12; i++) {
+      var frame = document.getElementById('frame' + i);
+      frame.setAttribute("src", "https://msrvtt.s3.ca-central-1.amazonaws.com/frames/" + new_vid + "_frame_" + i + ".jpg");
+    }
+
+    // update caption
+    var caption = document.getElementById('caption');
+    var new_caption = msrvtt_json[num]['sentence'];
+    caption.innerHTML = '<span style="color: #ad4442"><strong>Text</strong></span><br>'+new_caption;
+
+    // update top 5
+    var top5_request = new XMLHttpRequest();
+    top5_request.open("GET", "static/top5_retrieved.json", false);
+    top5_request.send(null);
+    var top5_retrieved = JSON.parse(top5_request.responseText);
+    for (let i = 1; i < 6; i++) {
+      var top_vid = document.getElementById('vid-top-' + i);
+      vid_name = msrvtt_json[top5_retrieved[num][i-1]]['video_id'];
+      top_vid.setAttribute("src", "https://msrvtt.s3.ca-central-1.amazonaws.com/videos/" + vid_name + ".mp4");
+      if (top5_retrieved[num][i-1] == num){
+        top_vid.style.border = "thick solid #008000";
+      }else{
+        top_vid.style.border = "thick solid #FF0000";
+      }
+
+    }
+    
+    // update chart
+    // This is the speed in which the loop occurs
+    loopSpeed = 5000
+
+    // Every loopSpeed milliseconds, get API data (randomized with Python)
+    // Then draw a bar graph with the data.
+
+    var weight_request = new XMLHttpRequest();
+    weight_request.open("GET", "static/attn_weights.json", false);
+    weight_request.send(null)
+    var attn_weights = JSON.parse(weight_request.responseText);
+
+    drawChart(attn_weights[num])
+
+    function drawChart(set) {
+
+      var data = {
+          labels: ["frame 1", "frame 2", "frame 3", "frame 4", "frame 5", "frame 6", "frame 7", "frame 8", "frame 9", "frame 10", "frame 11", "frame 12"],
+          datasets: [
+              {
+                  label: "",
+                  backgroundColor: "rgba(173, 68, 66, 1)",
+                  data: set
+              }
+          ]
+      };
+
+      var ctx = document.getElementById("canvas").getContext("2d");
+      
+      // return new Chart(ctx).Bar(data, {
+      //       responsive : true
+      //   });
+
+      return new Chart(ctx, {
+        type: "bar",
+        data: data,
+        options: {
+          events: [],
+          legend: {display: false},
+          scales: {
+            xAxes: [{
+                barPercentage: 0.4,
+                display: false,
+                gridLines: {
+                    color: "rgba(0, 0, 0, 0)",
+                    drawBorder: false
+                }
+            }],
+            yAxes: [{
+                display: false,
+                gridLines: {
+                    color: "rgba(0, 0, 0, 0)",
+                    drawBorder: false
+                },
+                ticks: {
+                    display: false
+                }
+            }]
+          }
+        }
+      });
+
+      }
+
+  }
+</script>
+
+</body>
+
+</html>
