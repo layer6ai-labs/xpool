@@ -14,7 +14,7 @@ X-Pool: Cross-Modal Language-Video Attention for Text-Video Retrieval
 </b>
 </h4>
   
-[Paper]() | [Project Page & Demo](https://layer6ai-labs.github.io/xpool/)
+[Paper](https://arxiv.org/abs/2203.15086) | [Project Page & Demo](https://layer6ai-labs.github.io/xpool/)
 </div>
 
 <a name="intro"/>
