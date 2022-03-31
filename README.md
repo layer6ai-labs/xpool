@@ -10,7 +10,7 @@ X-Pool: Cross-Modal Language-Video Attention for Text-Video Retrieval
 </h1>
 <h4>
 <b>
-<a href="https://www.cs.toronto.edu/~satyag/">Satya Krishna Gorti*</a>, <a href="https://www.linkedin.com/in/noel-vouitsis">Noël Vouitsis*</a>, <a href="https://www.linkedin.com/in/jeremy-ma/">Junwei Ma*</a>, <a href="https://www.linkedin.com/in/keyvangolestan/">Keyvan Golestan</a>, <a href="https://www.cs.toronto.edu/~mvolkovs/">Maksims Volkovs</a>, <a href="https://animesh.garg.tech/">Animesh Garg</a>, <a href="http://www.cs.toronto.edu/~guangweiyu/">Guangwei Yu</a>    
+<a href="https://www.cs.toronto.edu/~satyag/">Satya Krishna Gorti*</a>, <a href="https://www.cs.toronto.edu/~nvouitsis/">Noël Vouitsis*</a>, <a href="https://www.linkedin.com/in/jeremy-ma/">Junwei Ma*</a>, <a href="https://www.linkedin.com/in/keyvangolestan/">Keyvan Golestan</a>, <a href="https://www.cs.toronto.edu/~mvolkovs/">Maksims Volkovs</a>, <a href="https://animesh.garg.tech/">Animesh Garg</a>, <a href="http://www.cs.toronto.edu/~guangweiyu/">Guangwei Yu</a>    
 </b>
 </h4>
   
