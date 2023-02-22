@@ -5,6 +5,7 @@ from collections import defaultdict, deque
 from trainer.base_trainer import BaseTrainer
 from modules.metrics import sim_matrix_training, sim_matrix_inference, generate_embeds_per_video_id
 from tqdm import tqdm
+import torch.nn as nn
 
 
 class Trainer(BaseTrainer):
@@ -45,17 +46,25 @@ class Trainer(BaseTrainer):
             if self.tokenizer is not None:
                 data['text'] = self.tokenizer(data['text'], return_tensors='pt', padding=True,
                                               truncation=True)
+                data['neg_text'] = self.tokenizer(data['neg_text'], return_tensors='pt', padding=True,
+                                              truncation=True)
+                                              
             if isinstance(data['text'], torch.Tensor):
                 data['text'] = data['text'].to(self.device)
+                data['neg_text'] = data['neg_text'].to(self.device)
             else:
                 data['text'] = {key: val.to(self.device) for key, val in data['text'].items()}
+                data['neg_text'] = {key: val.to(self.device) for key, val in data['neg_text'].items()}
             
             data['video'] = data['video'].to(self.device)
 
-            text_embeds, video_embeds_pooled = self.model(data)
-            output = sim_matrix_training(text_embeds, video_embeds_pooled, self.pooling_type)
+            text_embeds, video_embeds_pooled, negative_text_embeds = self.model(data)
+            # output = sim_matrix_training(text_embeds, video_embeds_pooled, self.pooling_type)
+
+            triplet_loss = nn.TripletMarginWithDistanceLoss(distance_function=nn.CosineSimilarity())
+
+            loss = triplet_loss(video_embeds_pooled, text_embeds, negative_text_embeds) 
             
-            loss = self.loss(output, self.model.clip.logit_scale)
             loss.backward()
             
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
@@ -114,25 +123,39 @@ class Trainer(BaseTrainer):
         with torch.no_grad():
             for _, data in tqdm(enumerate(self.valid_data_loader)):
                 if self.tokenizer is not None:
-                    data['text'] = self.tokenizer(data['text'], return_tensors='pt', padding=True, truncation=True)
+                    data['text'] = self.tokenizer(data['text'], return_tensors='pt', padding=True,
+                                                truncation=True)
+                    data['neg_text'] = self.tokenizer(data['neg_text'], return_tensors='pt', padding=True,
+                                                truncation=True)
+                                              
                 if isinstance(data['text'], torch.Tensor):
                     data['text'] = data['text'].to(self.device)
+                    data['neg_text'] = data['neg_text'].to(self.device)
                 else:
                     data['text'] = {key: val.to(self.device) for key, val in data['text'].items()}
+                    data['neg_text'] = {key: val.to(self.device) for key, val in data['neg_text'].items()}
 
                 data['video'] = data['video'].to(self.device)
                 
                 text_embed, vid_embed, vid_embed_pooled = self.model(data, return_all_frames=True)
                 text_embed_arr.append(text_embed.cpu())
                 vid_embed_arr.append(vid_embed.cpu())
-                sims_batch = sim_matrix_training(text_embed, vid_embed_pooled, self.pooling_type)
+                text_embeds, video_embeds_pooled, negative_text_embeds = self.model(data)
+                # output = sim_matrix_training(text_embeds, video_embeds_pooled, self.pooling_type)
 
-                curr_loss = self.loss(sims_batch, self.model.clip.logit_scale)
+                triplet_loss = nn.TripletMarginWithDistanceLoss(distance_function=nn.CosineSimilarity())
+
+                curr_loss = triplet_loss(video_embeds_pooled, text_embeds, negative_text_embeds)
+
+                # curr_loss = self.loss(sims_batch, self.model.clip.logit_scale)
                 total_val_loss += curr_loss.item()
 
                 for v_id in data['video_id']:
                     all_vid_ids.append(v_id)
                 
+
+
+            
             text_embeds = torch.cat(text_embed_arr)
             vid_embeds = torch.cat(vid_embed_arr)
 
@@ -147,7 +170,7 @@ class Trainer(BaseTrainer):
             # Pool frames for inference once we have all texts and videos
             self.model.pool_frames.cpu()
             vid_embeds_pooled = self.model.pool_frames(text_embeds, vid_embeds)
-            self.model.pool_frames.cuda()
+            self.model.pool_frames.cuda(device=7)
 
             text_embeds_per_video_id, vid_embeds_pooled_per_video_id = generate_embeds_per_video_id(text_embeds, 
                     vid_embeds_pooled, all_vid_ids, self.pooling_type)

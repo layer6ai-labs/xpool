@@ -1,0 +1,20 @@
+config/__pycache__/
+data/MSRVTT/msrvtt_data.zip
+data/MSRVTT/msrvtt_data/
+data/MSVD/YouTubeClips.tar
+data/MSVD/YouTubeClips/
+data/MSVD/negNoun_captions_msvd copy.json
+data/MSVD/negNoun_captions_msvd.json
+data/MSVD/negVerb_captions_msvd.json
+data/MSVD/negativeCaptionDavincii003.py
+data/MSVD/tempp.py
+data/MSVD/test_list_small.txt
+data/MSVD/train_list_small.txt
+data/MSVD/val_list_small.txt
+datasets/__pycache__/
+logs/
+model/__pycache__/
+modules/__pycache__/
+myInterpretation.txt
+outputs/
+trainer/__pycache__/

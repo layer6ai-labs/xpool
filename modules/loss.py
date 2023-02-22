@@ -27,10 +27,26 @@ class CLIPLoss(nn.Module):
         return (t2v_loss + v2t_loss) / 2.0
 
 
+class TRIPLETLoss(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, sims, logit_scale):
+        """
+        Inputs: cosine similarities
+            sims: n x n (text is dim-0)
+            logit_scale: 1 x 1
+        """
+        pass
+        
+
+
 class LossFactory:
     @staticmethod
     def get_loss(config: Config):
         if config.loss == 'clip':
             return CLIPLoss()
+        elif config.loss == 'triplet':
+            return TRIPLETLoss()
         else:
             raise NotImplemented

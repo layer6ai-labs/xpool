@@ -11,6 +11,8 @@ def sim_matrix_training(text_embeds, vid_embeds_pooled, pooling_type):
     Output
         sims: num_texts x num_vids
     """
+    print(text_embeds.size(), vid_embeds_pooled.size())
+    exit()
     text_embeds = text_embeds / text_embeds.norm(dim=-1, keepdim=True)
     vid_embeds_pooled = vid_embeds_pooled / vid_embeds_pooled.norm(dim=-1, keepdim=True)
 
