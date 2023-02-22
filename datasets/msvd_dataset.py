@@ -23,8 +23,8 @@ class MSVDDataset(Dataset):
         self.split_type = split_type
         db_file = 'data/MSVD/captions_msvd.json'
         db_file_negative = 'data/MSVD/negNoun_captions_msvd.json'
-        test_file = 'data/MSVD/test_list.txt'
-        train_file = 'data/MSVD/train_list.txt'
+        test_file = 'data/MSVD/test_list_small.txt'
+        train_file = 'data/MSVD/train_list_small.txt'
         self.vid2caption = load_json(db_file)
         self.vid2Negativecaption = load_json(db_file_negative)
 
@@ -90,4 +90,4 @@ class MSVDDataset(Dataset):
         for vid in self.test_vids:
             for caption in self.vid2caption[vid]:
                 self.all_test_pairs.append([vid, caption, self.vid2Negativecaption[vid][1]])
-        print("len = ", len(self.all_test_pairs))
+        # print("len = ", len(self.all_test_pairs))

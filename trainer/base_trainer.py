@@ -60,7 +60,7 @@ class BaseTrainer:
         setup GPU device if available, move model into configured device
         """
         use_gpu = torch.cuda.is_available()
-        device = torch.device('cuda:7' if use_gpu else 'cpu')
+        device = torch.device('cuda:5' if use_gpu else 'cpu')
         return device
 
     def _save_checkpoint(self, epoch, save_best=False):

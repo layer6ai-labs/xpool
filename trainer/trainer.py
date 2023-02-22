@@ -153,9 +153,6 @@ class Trainer(BaseTrainer):
                 for v_id in data['video_id']:
                     all_vid_ids.append(v_id)
                 
-
-
-            
             text_embeds = torch.cat(text_embed_arr)
             vid_embeds = torch.cat(vid_embed_arr)
 
@@ -170,7 +167,7 @@ class Trainer(BaseTrainer):
             # Pool frames for inference once we have all texts and videos
             self.model.pool_frames.cpu()
             vid_embeds_pooled = self.model.pool_frames(text_embeds, vid_embeds)
-            self.model.pool_frames.cuda(device=7)
+            self.model.pool_frames.cuda(device=5)
 
             text_embeds_per_video_id, vid_embeds_pooled_per_video_id = generate_embeds_per_video_id(text_embeds, 
                     vid_embeds_pooled, all_vid_ids, self.pooling_type)
