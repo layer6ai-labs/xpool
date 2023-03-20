@@ -27,11 +27,11 @@ class DataFactory:
             if split_type == 'train':
                 dataset = MSVDDataset(config, split_type, train_img_tfms)
                 return DataLoader(dataset, batch_size=config.batch_size,
-                        shuffle=True, num_workers=config.num_workers)
+                        shuffle=True, num_workers=config.num_workers, drop_last=True)
             else:
                 dataset = MSVDDataset(config, split_type, test_img_tfms)
                 return DataLoader(dataset, batch_size=config.batch_size,
-                        shuffle=False, num_workers=config.num_workers)
+                        shuffle=False, num_workers=config.num_workers, drop_last=True)
             
         elif config.dataset_name == 'LSMDC':
             if split_type == 'train':
@@ -41,7 +41,7 @@ class DataFactory:
             else:
                 dataset = LSMDCDataset(config, split_type, test_img_tfms)
                 return DataLoader(dataset, batch_size=config.batch_size,
-                            shuffle=False, num_workers=config.num_workers)
+                            shuffle=False, num_workers=config.num_workers, )
 
         else:
             raise NotImplementedError

@@ -6,6 +6,7 @@ from trainer.base_trainer import BaseTrainer
 from modules.metrics import sim_matrix_training, sim_matrix_inference, generate_embeds_per_video_id
 from tqdm import tqdm
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class Trainer(BaseTrainer):
@@ -23,13 +24,17 @@ class Trainer(BaseTrainer):
         self.valid_data_loader = valid_data_loader
         self.lr_scheduler = lr_scheduler
         self.tokenizer = tokenizer 
-
+        self.batch_size = config.batch_size
         self.pooling_type = config.pooling_type
         self.window_metric = defaultdict(lambda: deque(maxlen=config.eval_window_size))
         self.best_window = -1.0
         self.best = -1.0
 
 
+    def cosine_similarity(self, x1, x2):
+        return torch.mm(x1, x2.transpose(0, 1))
+
+    
     def _train_epoch(self, epoch):
         """
         Training logic for an epoch
@@ -57,13 +62,50 @@ class Trainer(BaseTrainer):
                 data['neg_text'] = {key: val.to(self.device) for key, val in data['neg_text'].items()}
             
             data['video'] = data['video'].to(self.device)
-
+            
             text_embeds, video_embeds_pooled, negative_text_embeds = self.model(data)
-            # output = sim_matrix_training(text_embeds, video_embeds_pooled, self.pooling_type)
+            
+            """
+            # TripletMarginLoss Start
+            # tiling positive pooled video embedding
+            anchors = video_embeds_pooled[0][0]
+            for i in range(1, len(video_embeds_pooled)):
+                torch.cat((anchors,video_embeds_pooled[i][i]), dim=0)
+            
+            anchors = anchors.tile((self.batch_size, 1, 1))
+            pos = text_embeds.tile((self.batch_size, 1, 1))
+            
+            # repeating positives that would act as negatives
+            neg = text_embeds.repeat_interleave(self.batch_size, dim=0)
+            
+            # change those negative functioning positives which make incorrect pairs ....occur at index 0, 32+1, 64+2,...
+            # replace them with negatives caption form language model
+            for j in range(0, len(neg)):
+                if (j%(self.batch_size+1) == 0):
+                    neg[j] = negative_text_embeds[(j)%self.batch_size]
+
 
             triplet_loss = nn.TripletMarginWithDistanceLoss(distance_function=nn.CosineSimilarity())
 
-            loss = triplet_loss(video_embeds_pooled, text_embeds, negative_text_embeds) 
+            loss = triplet_loss(anchors, pos, neg)
+            # TripletMarginLoss End
+
+            """
+            # Cross-EntropyLoss with hardMining
+            # print(anchors.shape, neg.shape,video_embeds_pooled.shape)
+            
+            # loss between positive pooled video and positive text
+            correct_pair_output = sim_matrix_training(text_embeds, video_embeds_pooled, self.pooling_type)
+            loss = self.loss(correct_pair_output, self.model.clip.logit_scale)
+
+            # loss between positive pooled video and negative text
+            incorrect_pair_output = sim_matrix_training(negative_text_embeds, video_embeds_pooled, self.pooling_type)
+            sim = torch.diag(incorrect_pair_output)
+            sim = 1-sim
+            sim = sim.mul(0.5)
+            # print(sim)
+            loss += max(0.3-torch.max(sim), 0.0)
+            
             
             loss.backward()
             
@@ -108,7 +150,7 @@ class Trainer(BaseTrainer):
 
         return res
 
-    
+
     def _valid_epoch_step(self, epoch, step, num_steps):
         """
         Validate at a step when training an epoch at a certain step
@@ -137,18 +179,48 @@ class Trainer(BaseTrainer):
 
                 data['video'] = data['video'].to(self.device)
                 
-                text_embed, vid_embed, vid_embed_pooled = self.model(data, return_all_frames=True)
+                text_embed, vid_embed, vid_embed_pooled, negative_text_embed = self.model(data, return_all_frames=True)
                 text_embed_arr.append(text_embed.cpu())
                 vid_embed_arr.append(vid_embed.cpu())
-                text_embeds, video_embeds_pooled, negative_text_embeds = self.model(data)
-                # output = sim_matrix_training(text_embeds, video_embeds_pooled, self.pooling_type)
-
+                
+                """
+                # tiling positives and positive pooled video embedding
+                anchors = vid_embed_pooled[0][0]
+                for i in range(1, len(vid_embed_pooled)):
+                    torch.cat((anchors, vid_embed_pooled[i][i]), dim=0)
+                
+                anchors = anchors.tile((self.batch_size, 1, 1))
+                pos = text_embed.tile((self.batch_size, 1, 1))
+                
+                # repeating positives that would act as negatives
+                neg = text_embed.repeat_interleave(self.batch_size, dim=0)
+                
+                # change those negative functioning positives which make incorrect pairs ....occur at index 0, 32+1, 64+2,...
+                # replace them with negatives caption form language model
+                for k in range(len(neg)):
+                    if (k%(self.batch_size+1) == 0):
+                        neg[k] = negative_text_embed[(k)%self.batch_size]
+                
                 triplet_loss = nn.TripletMarginWithDistanceLoss(distance_function=nn.CosineSimilarity())
 
-                curr_loss = triplet_loss(video_embeds_pooled, text_embeds, negative_text_embeds)
+                total_val_loss = triplet_loss(anchors, pos, neg)
+                
+                """
+                # Cross-EntropyLoss with hardMining
+                # print(anchors.shape, neg.shape,video_embeds_pooled.shape)
+                
+                # loss between positive pooled video and positive text
+                correct_pair_output = sim_matrix_training(text_embed, vid_embed_pooled, self.pooling_type)
+                total_val_loss = self.loss(correct_pair_output, self.model.clip.logit_scale)
 
-                # curr_loss = self.loss(sims_batch, self.model.clip.logit_scale)
-                total_val_loss += curr_loss.item()
+                # loss between positive pooled video and negative text
+                incorrect_pair_output = sim_matrix_training(negative_text_embed, vid_embed_pooled, self.pooling_type)
+                sim = torch.diag(incorrect_pair_output)
+                sim = 1-sim
+                sim = sim.mul(0.5)
+                
+                total_val_loss += max(0.3-torch.max(sim), 0.0)
+                
 
                 for v_id in data['video_id']:
                     all_vid_ids.append(v_id)
@@ -167,7 +239,7 @@ class Trainer(BaseTrainer):
             # Pool frames for inference once we have all texts and videos
             self.model.pool_frames.cpu()
             vid_embeds_pooled = self.model.pool_frames(text_embeds, vid_embeds)
-            self.model.pool_frames.cuda(device=5)
+            self.model.pool_frames.cuda("cuda:1")
 
             text_embeds_per_video_id, vid_embeds_pooled_per_video_id = generate_embeds_per_video_id(text_embeds, 
                     vid_embeds_pooled, all_vid_ids, self.pooling_type)

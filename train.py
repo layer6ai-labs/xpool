@@ -10,11 +10,13 @@ from modules.metrics import t2v_metrics, v2t_metrics
 from modules.loss import LossFactory
 from trainer.trainer import Trainer
 from modules.optimization import AdamW, get_cosine_schedule_with_warmup
+import torch.nn as nn
 
 
 def main():
     config = AllConfig()
     os.environ['TOKENIZERS_PARALLELISM'] = "false"
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,3"
     if not config.no_tensorboard:
         writer = SummaryWriter(log_dir=config.tb_log_dir)
     else:

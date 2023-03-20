@@ -23,7 +23,7 @@ class CLIPLoss(nn.Module):
         v2t_log_sm = F.log_softmax(logits, dim=0)
         v2t_neg_ce = torch.diag(v2t_log_sm)
         v2t_loss = -v2t_neg_ce.mean()
-
+ 
         return (t2v_loss + v2t_loss) / 2.0
 
 

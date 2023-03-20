@@ -5,7 +5,6 @@ from config.base_config import Config
 from datasets.video_capture import VideoCapture
 
 
-
 class MSVDDataset(Dataset):
     """
         videos_dir: directory where all videos are stored 
@@ -22,11 +21,13 @@ class MSVDDataset(Dataset):
         self.img_transforms = img_transforms
         self.split_type = split_type
         db_file = 'data/MSVD/captions_msvd.json'
-        db_file_negative = 'data/MSVD/negNoun_captions_msvd.json'
-        test_file = 'data/MSVD/test_list_small.txt'
-        train_file = 'data/MSVD/train_list_small.txt'
+        db_file_negative = 'data/MSVD/noun_random.json'
+        db_file_negative_verb = 'data/MSVD/verb_random.json'
+        test_file = 'data/MSVD/test_list.txt'
+        train_file = 'data/MSVD/train_list.txt'
         self.vid2caption = load_json(db_file)
         self.vid2Negativecaption = load_json(db_file_negative)
+        self.vid2Negativecaption_verb = load_json(db_file_negative_verb)
 
         if split_type == 'train':
             self.train_vids = read_lines(train_file) 
@@ -56,7 +57,7 @@ class MSVDDataset(Dataset):
             'text': caption,
             'neg_text': negativeCaption
         }
-            
+        
 
         return ret
 
@@ -80,14 +81,15 @@ class MSVDDataset(Dataset):
     def _construct_all_train_pairs(self):
         self.all_train_pairs = []
         for vid in self.train_vids:
-            for caption in self.vid2caption[vid]:
-                # print(vid)
-                self.all_train_pairs.append([vid, caption, self.vid2Negativecaption[vid][1]])
+            for caption_idx in range(len(self.vid2caption[vid])):
+                # self.all_test_pairs.append([vid, vid2caption[vid][caption_idx], self.vid2Negativecaption[vid][caption_idx]])
+                self.all_train_pairs.append([vid, self.vid2caption[vid][caption_idx], self.vid2Negativecaption[vid][caption_idx]])
+                self.all_train_pairs.append([vid, self.vid2caption[vid][caption_idx], self.vid2Negativecaption_verb[vid][caption_idx]])
 
 
     def _construct_all_test_pairs(self):
         self.all_test_pairs = []
         for vid in self.test_vids:
-            for caption in self.vid2caption[vid]:
-                self.all_test_pairs.append([vid, caption, self.vid2Negativecaption[vid][1]])
-        # print("len = ", len(self.all_test_pairs))
+            for caption_idx in range(len(self.vid2caption[vid])):
+                # self.all_test_pairs.append([vid, vid2caption[vid][caption_idx], self.vid2Negativecaption[vid][caption_idx]])
+                self.all_test_pairs.append([vid, self.vid2caption[vid][caption_idx], self.vid2Negativecaption[vid][caption_idx]])

@@ -18,3 +18,7 @@ modules/__pycache__/
 myInterpretation.txt
 outputs/
 trainer/__pycache__/
+data/MSVD/archive.zip
+data/MSVD/compressed_data/
+data/MSVD/noun_random.json
+data/MSVD/verb_random.json

@@ -41,7 +41,7 @@ class AllConfig(Config):
         parser.add_argument('--clip_lr', type=float, default=1e-6, help='Learning rate used for CLIP params')
         parser.add_argument('--noclip_lr', type=float, default=1e-5, help='Learning rate used for new params')
         parser.add_argument('--batch_size', type=int, default=32)
-        parser.add_argument('--num_epochs', type=int, default=5)
+        parser.add_argument('--num_epochs', type=int, default=15)
         parser.add_argument('--weight_decay', type=float, default=0.2, help='Weight decay')
         parser.add_argument('--warmup_proportion', type=float, default=0.1, help='Warmup proportion for learning rate schedule')
 
