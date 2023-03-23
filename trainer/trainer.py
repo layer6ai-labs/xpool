@@ -48,6 +48,7 @@ class Trainer(BaseTrainer):
         
         for batch_idx, data in enumerate(self.train_data_loader):
             # then assume we must tokenize the input, e.g. its a string
+            data['text'] +=  data['neg_text']
             if self.tokenizer is not None:
                 data['text'] = self.tokenizer(data['text'], return_tensors='pt', padding=True,
                                               truncation=True)
@@ -63,7 +64,12 @@ class Trainer(BaseTrainer):
             
             data['video'] = data['video'].to(self.device)
             
+            # print(data['text']['input_ids'].shape, data['text']['attention_mask'].shape)
+            # torch.Size([64, 17]) torch.Size([64, 17])
+            
             text_embeds, video_embeds_pooled, negative_text_embeds = self.model(data)
+            # print(text_embeds.shape, video_embeds_pooled.shape)
+            # torch.Size([64, 512]) torch.Size([32, 64, 512])
             
             """
             # TripletMarginLoss Start
@@ -91,6 +97,7 @@ class Trainer(BaseTrainer):
             # TripletMarginLoss End
 
             """
+            """
             # Cross-EntropyLoss with hardMining
             # print(anchors.shape, neg.shape,video_embeds_pooled.shape)
             
@@ -105,7 +112,13 @@ class Trainer(BaseTrainer):
             sim = sim.mul(0.5)
             # print(sim)
             loss += max(0.3-torch.max(sim), 0.0)
+            """
             
+            correct_pair_output = sim_matrix_training(text_embeds, video_embeds_pooled, self.pooling_type)
+            # print(correct_pair_output.shape) 
+            # 32, 64
+            
+            loss = self.loss(correct_pair_output, self.model.clip.logit_scale)
             
             loss.backward()
             
@@ -206,6 +219,7 @@ class Trainer(BaseTrainer):
                 total_val_loss = triplet_loss(anchors, pos, neg)
                 
                 """
+                """
                 # Cross-EntropyLoss with hardMining
                 # print(anchors.shape, neg.shape,video_embeds_pooled.shape)
                 
@@ -220,6 +234,7 @@ class Trainer(BaseTrainer):
                 sim = sim.mul(0.5)
                 
                 total_val_loss += max(0.3-torch.max(sim), 0.0)
+                """
                 
 
                 for v_id in data['video_id']:
