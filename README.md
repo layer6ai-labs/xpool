@@ -84,7 +84,7 @@ If you find this work useful in your research, please cite the following paper:
 ```
 @inproceedings{gorti2022xpool,
   title={X-Pool: Cross-Modal Language-Video Attention for Text-Video Retrieval},
-  author={Gorti, Satya Krishna and Vouitsis, Noel and Ma, Junwei and Golestan, Keyvan and Volkovs, Maksims and Garg, Animesh and Yu, Guangwei},
+  author={Gorti, Satya Krishna and Vouitsis, No{\"e}l and Ma, Junwei and Golestan, Keyvan and Volkovs, Maksims and Garg, Animesh and Yu, Guangwei},
   booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
   year={2022}
 }
