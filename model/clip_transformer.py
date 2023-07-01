@@ -23,27 +23,25 @@ class CLIPTransformer(nn.Module):
         batch_size = data['video'].shape[0]
         text_data = data['text']
         video_data = data['video']
-        text_negative = data['neg_text']
+        noun_negative = data['neg_noun']
+        verb_negative = data['neg_verb']
 
         video_data = video_data.reshape(-1, 3, self.config.input_res, self.config.input_res)
         
         if self.config.huggingface:
             text_features = self.clip.get_text_features(**text_data)
-            negative_text_features = self.clip.get_text_features(**text_negative)
+            negative_noun_features = self.clip.get_text_features(**noun_negative)
+            negative_verb_features = self.clip.get_text_features(**verb_negative)
             video_features = self.clip.get_image_features(video_data)
-        else:
-            text_features = self.clip.encode_text(text_data)
-            negative_text_features = self.clip.encode_text(text_negative)
-            video_features = self.clip.encode_image(video_data)
-   
+    
         video_features = video_features.reshape(batch_size, self.config.num_frames, -1)
         # print(text_features.shape)
         # print(video_features.shape)
         video_features_pooled = self.pool_frames(text_features, video_features)
             
         if return_all_frames:
-            return text_features, video_features, video_features_pooled, negative_text_features
+            return text_features, video_features, video_features_pooled, negative_noun_features, negative_verb_features
 
-        return text_features, video_features_pooled, negative_text_features
+        return text_features, video_features_pooled, negative_noun_features, negative_verb_features
         
         # return text_features, video_features_pooled

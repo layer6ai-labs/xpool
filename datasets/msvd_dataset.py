@@ -23,10 +23,10 @@ class MSVDDataset(Dataset):
         db_file = 'data/MSVD/captions_msvd.json'
         db_file_negative = 'data/MSVD/noun_random.json'
         db_file_negative_verb = 'data/MSVD/verb_random.json'
-        test_file = 'data/MSVD/test_list.txt'
-        train_file = 'data/MSVD/train_list.txt'
+        test_file = 'data/MSVD/test_list_small.txt'
+        train_file = 'data/MSVD/train_list_small.txt'
         self.vid2caption = load_json(db_file)
-        self.vid2Negativecaption = load_json(db_file_negative)
+        self.vid2Negativecaption_noun = load_json(db_file_negative)
         self.vid2Negativecaption_verb = load_json(db_file_negative_verb)
 
         if split_type == 'train':
@@ -39,9 +39,9 @@ class MSVDDataset(Dataset):
 
     def __getitem__(self, index):
         if self.split_type == 'train':
-            video_path, caption, video_id, negativeCaption = self._get_vidpath_and_caption_by_index_train(index)
+            video_path, caption, video_id, negativeNoun, negCaptionVerb = self._get_vidpath_and_caption_by_index_train(index)
         else:
-            video_path, caption, video_id, negativeCaption = self._get_vidpath_and_caption_by_index_test(index)
+            video_path, caption, video_id, negativeNoun, negCaptionVerb = self._get_vidpath_and_caption_by_index_test(index)
 
         imgs, idxs = VideoCapture.load_frames_from_video(video_path, 
                                                          self.config.num_frames, 
@@ -55,22 +55,22 @@ class MSVDDataset(Dataset):
             'video_id': video_id,
             'video': imgs,
             'text': caption,
-            'neg_text': negativeCaption
+            'neg_noun': negativeNoun,
+            'neg_verb': negCaptionVerb
         }
-        
 
         return ret
 
 
     def _get_vidpath_and_caption_by_index_train(self, index):
-        vid, caption, negativeCaption = self.all_train_pairs[index]
+        vid, caption, negativeNoun, negCaptionVerb = self.all_train_pairs[index]
         video_path = os.path.join(self.videos_dir, vid + '.avi')
-        return video_path, caption, vid, negativeCaption
+        return video_path, caption, vid, negativeNoun, negCaptionVerb
 
     def _get_vidpath_and_caption_by_index_test(self, index):
-        vid, caption, negativeCaption = self.all_test_pairs[index]
+        vid, caption, negativeNoun, negCaptionVerb = self.all_test_pairs[index]
         video_path = os.path.join(self.videos_dir, vid + '.avi')
-        return video_path, caption, vid, negativeCaption
+        return video_path, caption, vid, negativeNoun, negCaptionVerb
 
     def __len__(self):
         if self.split_type == 'train':
@@ -83,13 +83,11 @@ class MSVDDataset(Dataset):
         for vid in self.train_vids:
             for caption_idx in range(len(self.vid2caption[vid])):
                 # self.all_test_pairs.append([vid, vid2caption[vid][caption_idx], self.vid2Negativecaption[vid][caption_idx]])
-                self.all_train_pairs.append([vid, self.vid2caption[vid][caption_idx], self.vid2Negativecaption[vid][caption_idx]])
-                self.all_train_pairs.append([vid, self.vid2caption[vid][caption_idx], self.vid2Negativecaption_verb[vid][caption_idx]])
+                self.all_train_pairs.append([vid, self.vid2caption[vid][caption_idx], self.vid2Negativecaption_noun[vid][caption_idx], self.vid2Negativecaption_verb[vid][caption_idx]])
 
 
     def _construct_all_test_pairs(self):
         self.all_test_pairs = []
         for vid in self.test_vids:
             for caption_idx in range(len(self.vid2caption[vid])):
-                # self.all_test_pairs.append([vid, vid2caption[vid][caption_idx], self.vid2Negativecaption[vid][caption_idx]])
-                self.all_test_pairs.append([vid, self.vid2caption[vid][caption_idx], self.vid2Negativecaption[vid][caption_idx]])
+                self.all_test_pairs.append([vid, self.vid2caption[vid][caption_idx], self.vid2Negativecaption_noun[vid][caption_idx], self.vid2Negativecaption_verb[vid][caption_idx]])

@@ -24,7 +24,7 @@ def sim_matrix_training(text_embeds, vid_embeds_pooled, pooling_type):
         text_embeds = text_embeds.unsqueeze(1)
         
         sims = torch.bmm(text_embeds, vid_embeds_pooled).squeeze(1)
-
+        
     return sims
 
 

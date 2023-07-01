@@ -483,7 +483,7 @@ def available_models():
     return list(_MODELS.keys())
 
 
-def load_clip(name: str, device: Union[str, torch.device] = "cuda:1" if torch.cuda.is_available() else "cpu", jit=True):
+def load_clip(name: str, device: Union[str, torch.device] = "cuda:7" if torch.cuda.is_available() else "cpu", jit=True):
     """Load a CLIP model
     Parameters
     ----------
